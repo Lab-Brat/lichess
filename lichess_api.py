@@ -6,11 +6,11 @@ from collections import Counter
 from pgn_parser import Parser
 
 class Lichess():
-    def __init__(self, username, g_format):
+    def __init__(self, username, g_format, g_num):
         self.username = username
         self.g_format = g_format
         self.user = lichess.api.user(self.username)
-        self.p_num = 100
+        self.p_num = g_num
         self.pgn_url = f'https://lichess.org/api/games/user/{username}'
         self.pgn_dict = self.parse()
 
@@ -34,7 +34,6 @@ class Lichess():
     def parse(self):
         pgn = self.get_pgn()
         return Parser(pgn).parse()
-
 
     def get_side(self, game):
         game_dict = self.pgn_dict[f'game{game}']
@@ -91,12 +90,13 @@ class Lichess():
 if __name__ == '__main__':
     uname = 'Incubik'
     g_format = 'blitz'
-    L = Lichess(uname, g_format)
+    g_num = 2
+    L = Lichess(uname, g_format, g_num)
     
     rating = L.get_rating()
     print(f'{uname} is rated {rating} in {g_format}')
 
-    #pprint.pprint(L.pgn_dict)
-    L.get_loss_open()
+    pprint.pprint(L.pgn_dict)
+    #L.get_loss_open()
 
 
