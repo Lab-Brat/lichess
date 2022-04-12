@@ -29,7 +29,7 @@ class Lichess():
                            params={'max':self.p_num,  \
                                    'opening':'true', \
                                    'perfType': self.g_format})
-        #self.dwn_pgn(pgn)
+        self.dwn_pgn(pgn)
         return pgn.content.decode('utf-8')
 
     def dwn_pgn(self, pgn):
@@ -51,7 +51,8 @@ class Lichess():
         '''
         check which side the player is playing on
         '''
-        game_dict = self.pgn_dict[f'game{game}']
+        # game_dict = self.pgn_dict[f'game{game}']
+        game_dict = self.pgn_dict[game]
         white = game_dict['White']
         black = game_dict['Black']
         
@@ -66,7 +67,8 @@ class Lichess():
         '''
         check the result of the game: won, lost or draw
         '''
-        game_dict = self.pgn_dict[f'game{game}']
+        # game_dict = self.pgn_dict[f'game{game}']
+        game_dict = self.pgn_dict[game]
         result = game_dict['Result']
         side = self.get_side(game)
 
@@ -83,34 +85,42 @@ class Lichess():
         
         return side_result
 
-
-    def get_loss_open(self):
+    def get_stat(self):
         '''
-        get and print out game statistics
+        get statistics from png
         '''
         before_colon = r'([^\:]+)'
-        w_openings = []
-        b_openings = []
-        for game in range(1, self.p_num+1):
-            if self.get_result(game) == 'lost' and self.get_side(game)=='white':
-                opening = self.pgn_dict[f'game{game}']['Opening']
-                w_openings.append(re.findall(before_colon, opening)[0])
-            elif self.get_result(game) == 'lost' and self.get_side(game)=='black':
-                opening = self.pgn_dict[f'game{game}']['Opening']
-                b_openings.append(re.findall(before_colon, opening)[0])
-        
+        w_openings, b_openings, d_openings = [], [], []
+        lo, wi, drw = 0, 0, 0
+
+        for game in self.pgn_dict:
+            if self.get_result(game) == 'lost':
+                lo += 1
+                opening = self.pgn_dict[game]['Opening']
+                if self.get_side(game)=='white':
+                    w_openings.append(re.findall(before_colon, opening)[0])
+                elif self.get_side(game)=='black':
+                    b_openings.append(re.findall(before_colon, opening)[0])
+            elif self.get_result(game) == 'won':
+                wi += 1
+            else:
+                drw += 1
+
         wco = Counter(w_openings)
         bco = Counter(b_openings)
-        print("\n[some statistics on lost games as white]")
+        print(f"\ntotal games analyzed: {wi+lo+drw}")
+        print(f"games won: {wi}, games lost: {lo}, games drew: {drw}")
+        print("\n[statistics on lost games as white]")
         [print(i, wco[i]) for i in wco]
-        print("\n[some statistics on lost games as black]")
+        print("\n[statistics on lost games as black]")
         [print(i, bco[i]) for i in bco]
         print("\n")
-
 
 if __name__ == '__main__':
     uname = 'LabBrat'
     g_format = 'blitz'
-    g_num = 2
+    g_num = 200
     L = Lichess(uname, g_format, g_num)
+    L.get_stat()
+
 

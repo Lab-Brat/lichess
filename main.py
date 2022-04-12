@@ -7,5 +7,5 @@ L = Lichess(uname, g_format, int(g_num))
 
 rating = L.get_rating()
 print(f'{uname} is rated {rating} in {g_format}')
-L.get_loss_open()
+L.get_stat()
 
