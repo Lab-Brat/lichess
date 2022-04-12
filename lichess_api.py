@@ -15,10 +15,16 @@ class Lichess():
         self.pgn_dict = self.parse()
 
     def get_rating(self):
+        '''
+        get user rating
+        '''
         rt = self.user['perfs'][self.g_format]['rating']
         return rt
 
     def get_pgn(self):
+        '''
+        get user games in pgn file and read it
+        '''
         pgn = requests.get(self.pgn_url, \
                            params={'max':self.p_num,  \
                                    'opening':'true', \
@@ -27,15 +33,24 @@ class Lichess():
         return pgn.content.decode('utf-8')
 
     def dwn_pgn(self, pgn):
+        '''
+        download the pgn file
+        '''
         file = open(f'{self.username}_games.pgn', 'wb')
         file.write(pgn.content)
         file.close()
 
     def parse(self):
+        '''
+        user pgn_parser to parse the pgn output
+        '''
         pgn = self.get_pgn()
         return Parser(pgn).parse()
 
     def get_side(self, game):
+        '''
+        check which side the player is playing on
+        '''
         game_dict = self.pgn_dict[f'game{game}']
         white = game_dict['White']
         black = game_dict['Black']
@@ -48,6 +63,9 @@ class Lichess():
         return side
 
     def get_result(self, game):
+        '''
+        check the result of the game: won, lost or draw
+        '''
         game_dict = self.pgn_dict[f'game{game}']
         result = game_dict['Result']
         side = self.get_side(game)
@@ -67,6 +85,9 @@ class Lichess():
 
 
     def get_loss_open(self):
+        '''
+        get and print out game statistics
+        '''
         before_colon = r'([^\:]+)'
         w_openings = []
         b_openings = []
@@ -88,15 +109,8 @@ class Lichess():
 
 
 if __name__ == '__main__':
-    uname = 'Incubik'
+    uname = 'LabBrat'
     g_format = 'blitz'
     g_num = 2
     L = Lichess(uname, g_format, g_num)
-    
-    rating = L.get_rating()
-    print(f'{uname} is rated {rating} in {g_format}')
-
-    pprint.pprint(L.pgn_dict)
-    #L.get_loss_open()
-
 
